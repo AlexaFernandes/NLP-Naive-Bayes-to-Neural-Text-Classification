@@ -111,6 +111,7 @@ def compute_accuracy(eval_items:list):
 def train_model(training_data,testing_data,solver='liblinear',penalty='l2', field="text_desc",feature_rep="binary",top_k=3):
     
     logging.info("Starting model training...")
+    print("feat_rep="+feature_rep+"  top_k="+ str(top_k)+"\n")
 
     # GET LABELS
     Y_train=training_data.target
@@ -158,7 +159,8 @@ def main():
     testing_data = fetch_20newsgroups(subset="test", categories=text_categories)
 
     
-    feature_reps=['binary','counts','tfidf'] #these are the 3 types of metrics that will be tested
+    #feature_reps=['binary','counts','tfidf'] #these are the 3 types of metrics that will be tested
+    feature_reps=['tfidf']
     top_ks=[1,3,5]
     results=[]
     solvers=['liblinear']
@@ -177,8 +179,9 @@ def main():
                     if penalty=='elasticnet' and solver!='saga':
                         continue
                     model,transformer,acc,mrr_at_k,predicted_categories=train_model(training_data,testing_data,solver=solver, penalty=penalty,feature_rep=feature_rep,top_k=top_k)
-                    results.append([feature_rep,top_k,acc,mrr_at_k])#,solver,penalty])
-                    
+                    #results.append([feature_rep,top_k,acc,mrr_at_k])#,solver,penalty])
+                    #results.append([feature_rep,acc])
+                    results.append([top_k,acc,mrr_at_k])
                     
                     if top_k==1:
                         print(metrics.classification_report(testing_data.target, predicted_categories,target_names=text_categories)) 
@@ -196,7 +199,9 @@ def main():
             
                         print("The accuracy is {}".format(accuracy_score(testing_data.target, predicted_categories)))
                 
-    df_results=pd.DataFrame(results,columns=['feature_representation','top_k','accuracy','mrr_at_k'])#,'solver','penalty'])
+    #df_results=pd.DataFrame(results,columns=['feature_representation','top_k','accuracy','mrr_at_k'])#,'solver','penalty'])
+    #df_results=pd.DataFrame(results,columns=['feature_representation','accuracy'])
+    df_results=pd.DataFrame(results,columns=['top_k','accuracy','mrr_at_k'])
     df_results.sort_values(by=['accuracy'],ascending=False)
     print(df_results)
     #model,transformer,accuracy,mrr_at_k=train_model(training_data,testing_data,feature_rep="binary",top_k=3)
