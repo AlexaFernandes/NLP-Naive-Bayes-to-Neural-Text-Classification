@@ -183,18 +183,21 @@ def main():
     #description + tokenized url
     df['text_desc_headline_url'] = df['short_description'] + ' '+ df['headline']+" " + df['tokenized_url']
     
-    feature_reps=['binary','counts','tfidf'] #these are the 3 types of metrics that will be tested
+    #feature_reps=['binary','counts','tfidf'] #these are the 3 types of metrics that will be tested
+    feature_reps=['tfidf']
     fields=['text_desc','text_desc_headline','text_desc_headline_url']
-    top_ks=[1,3,5]
+    top_ks=[1]#,3,5]
     
     results=[]
     for field in fields:
         for feature_rep in feature_reps:
             for top_k in top_ks:
                 model,transformer,acc,mrr_at_k=train_model(df,field=field,feature_rep=feature_rep,top_k=top_k)
-                results.append([field,feature_rep,top_k,acc,mrr_at_k])
+                #results.append([field,feature_rep,top_k,acc,mrr_at_k])
+                results.append([field,acc,mrr_at_k])
                 
-    df_results=pd.DataFrame(results,columns=['text_fields','feature_representation','top_k','accuracy','mrr_at_k'])
+    #df_results=pd.DataFrame(results,columns=['text_fields','feature_representation','top_k','accuracy','mrr_at_k'])
+    df_results=pd.DataFrame(results,columns=['text_fields','accuracy','mrr_at_k'])
     df_results.sort_values(by=['text_fields','accuracy'],ascending=False)
     print(df_results)
     # model,transformer,accuracy,mrr_at_k=train_model(df,field="text_desc",feature_rep="binary",top_k=3)
